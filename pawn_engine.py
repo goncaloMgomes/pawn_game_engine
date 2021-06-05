@@ -16,6 +16,7 @@ class Board:
 		self.last_move = Move(None,None,None,None)
 		self.engine_colour = constants.BLACK
 		self.human_colour = constants.WHITE
+		self.search_depth = 5
 		self.init_board()
 
 
@@ -35,29 +36,33 @@ class Board:
 		tx_red = "\u001b[31m"
 		tx_cyan = "\u001b[36;1m"
 		reset = "\u001b[0m"
+		w_pawn = "♙"
+		b_pawn = "♟"
+		bg_gray = "\u001b[48;5;239m"
 
-
-		print("  1 -> BLACK PAWN \n  2 -> WHITE PAWN")
+		print("  ♟ -> BLACK PAWN \n  ♙ -> WHITE PAWN")
 		print(tx_cyan + "  0 1 2 3 4 5 6 7" + reset)
 		for l in range(8):
 			print(str(8-l)+" ",end='')
 			for c in range(8):
 				if(((c % 2 == 0) and (l % 2 == 0)) or (c % 2 != 0) and (l % 2 != 0)): #white square
 					tx_color = tx_black
-					if self.board[l,c] == constants.WHITE: tx_color = tx_green
-					if self.board[l,c] == constants.BLACK: tx_color = tx_red
+					#if self.board[l,c] == constants.WHITE: tx_color = tx_green
+					#if self.board[l,c] == constants.BLACK: tx_color = tx_red
 					if(self.board[l,c] != 0):
-						print(bg_white  + tx_color + str(self.board[l,c]) + " " + reset , end='')
+						pawn = w_pawn if self.board[l,c] == 2 else b_pawn
+						print(bg_white  + tx_color + pawn + " " + reset , end='')
 					else:
 						print(bg_white  + tx_color + "  " + reset, end='')
 				else:#black square
 					tx_color = tx_white
-					if self.board[l,c] == constants.WHITE: tx_color = tx_green
-					if self.board[l,c] == constants.BLACK: tx_color = tx_red
+					#if self.board[l,c] == constants.WHITE: tx_color = tx_green
+					#if self.board[l,c] == constants.BLACK: tx_color = tx_red
 					if(self.board[l,c] != 0):
-						print(tx_color + str(self.board[l,c]) + " " + reset, end='')
+						pawn = w_pawn if (self.board[l,c] == 2) else b_pawn
+						print(bg_gray + tx_color + pawn + " " + reset, end='')
 					else:
-						print(tx_color + "  " + reset, end='')
+						print(bg_gray + tx_color + "  " + reset, end='')
 				if(c == 7): print(tx_cyan + " " +str(l) + reset)
 			if(l == 7):
 				print("  a b c d e f g h")
@@ -148,7 +153,6 @@ class Board:
 		input_move = input_move.split(",")
 		if(len(input_move) != 2):
 			return False
-
 		try:
 			int(input_move[0])
 			int(input_move[1])
@@ -190,7 +194,7 @@ class Board:
 						self.last_move = move
 			else:
 				print("Computer thinking....")
-				sleep(1)
+				#sleep(1)
 				cmove = self.get_cmove()
 				self.do_cmove(cmove)
 				self.last_move = cmove
@@ -202,8 +206,16 @@ class Board:
 				print("Congratulations BLACK wins the game!")
 
 
-
+	#Function to determine if the current game has finished
 	def is_game_over(self):
+		if(self.colour_to_move == self.engine_colour):
+			moves = self.get_moves(self.board,self.engine_colour,self.last_move)
+			if(len(moves) == 0):
+				self.gameover = self.human_colour
+		else:
+			moves = self.get_moves(self.board,self.human_colour,self.last_move)
+			if(len(moves) == 0):
+				self.gameover = self.engine_colour
 		for c in range(8):
 			#WHITE wins when a white pawn gets to the row 0
 			if(self.colour_to_move == constants.BLACK):
@@ -215,8 +227,17 @@ class Board:
 				if(self.board[7,c] == constants.BLACK):
 					self.gameover = constants.BLACK
 					break
-
-	def is_game_over_in_position(self,position,maximizingPlayer):
+	#Function to determine if a child in minimax has reached a game over position
+	def is_game_over_in_position(self,position,maximizingPlayer,last_move):
+		if(maximizingPlayer):
+			moves = self.get_moves(position,self.engine_colour,last_move)
+			if(len(moves) == 0):
+				return self.human_colour
+		else:
+			moves = self.get_moves(position,self.human_colour,last_move)
+			if(len(moves) == 0):
+				return self.engine_colour
+		#If there are moves to be made we have to check then if a piece has reached the other side
 		#This function follows the same logic of is_game_over()
 		for c in range(8):
 			#if maximizingPlayer is the current player to play we need to check if the
@@ -231,11 +252,11 @@ class Board:
 					return constants.BLACK
 		return 0
 
-	def get_static_evaluation_of_position(self,position,maximizingPlayer):
+	def get_static_evaluation_of_position(self,position,maximizingPlayer,last_move):
 		#each pawn has a value of 1, all pawns are the same
 		#a win has a value of 100 a loss -100
 		evaluation = 0
-		winner = self.is_game_over_in_position(position,maximizingPlayer)
+		winner = self.is_game_over_in_position(position,maximizingPlayer,last_move)
 		if(winner == self.engine_colour):
 			evaluation = 100
 			return evaluation
@@ -269,9 +290,9 @@ class Board:
 
 	def minimax(self, position, last_move, depth, alpha, beta, maximizingPlayer):
 		best_move = Move(None,None,None,None)
-		is_game_over = self.is_game_over_in_position(position,maximizingPlayer)
+		is_game_over = self.is_game_over_in_position(position,maximizingPlayer,last_move)
 		if((depth == 0) or (is_game_over != 0)):
-			eval = self.get_static_evaluation_of_position(position,maximizingPlayer)
+			eval = self.get_static_evaluation_of_position(position,maximizingPlayer,last_move)
 			if(is_game_over == self.engine_colour):
 				eval += depth #the higher the depth the less moves it is required to achieve a good position
 			elif(is_game_over == self.engine_colour):
@@ -306,10 +327,10 @@ class Board:
 			return minEval,best_move
 
 	def get_cmove(self):
-		_,best_move = self.minimax(self.board,self.last_move, 5, -math.inf, math.inf, True)
+		_,best_move = self.minimax(self.board,self.last_move, self.search_depth, -math.inf, math.inf, True)
 		return best_move
 	def get_hmove(self):
-		_,best_move = self.minimax(self.board,self.last_move, 5, -math.inf, math.inf, False)
+		_,best_move = self.minimax(self.board,self.last_move, self.search_depth, -math.inf, math.inf, False)
 		return best_move
 
 if __name__ == "__main__":
