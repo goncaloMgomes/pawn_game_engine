@@ -38,7 +38,7 @@ class Board:
 		reset = "\u001b[0m"
 		w_pawn = "♙"
 		b_pawn = "♟"
-		bg_gray = "\u001b[48;5;239m"
+		bg_gray = "\u001b[48;5;240m"
 
 		print("  ♟ -> BLACK PAWN \n  ♙ -> WHITE PAWN")
 		print(tx_cyan + "  0 1 2 3 4 5 6 7" + reset)
@@ -55,7 +55,7 @@ class Board:
 					else:
 						print(bg_white  + tx_color + "  " + reset, end='')
 				else:#black square
-					tx_color = tx_white
+					tx_color = tx_black
 					#if self.board[l,c] == constants.WHITE: tx_color = tx_green
 					#if self.board[l,c] == constants.BLACK: tx_color = tx_red
 					if(self.board[l,c] != 0):
@@ -63,7 +63,7 @@ class Board:
 						print(bg_gray + tx_color + pawn + " " + reset, end='')
 					else:
 						print(bg_gray + tx_color + "  " + reset, end='')
-				if(c == 7): print(tx_cyan + " " +str(l) + reset)
+				if(c == 7): print(tx_green + " " +str(l) + reset)
 			if(l == 7):
 				print("  a b c d e f g h")
 
@@ -163,6 +163,9 @@ class Board:
 
 
 	def run(self):
+		tx_green = "\u001b[32m"
+		tx_cyan = "\u001b[36;1m"
+		reset = "\u001b[0m"
 		legal_move = True
 		valid_src = True
 		valid_dst = True
@@ -179,6 +182,7 @@ class Board:
 					valid_dst = True
 					print("Input error, try again.")
 				#USER INPUT
+				print("Usage:" + tx_green + "x" + reset + "," + tx_cyan + "y" + reset)
 				src_square = input("Src square: ")
 				valid_src = self.is_input_valid(src_square)
 				src_square = src_square.split(",")
