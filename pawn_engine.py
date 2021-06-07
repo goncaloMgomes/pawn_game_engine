@@ -171,43 +171,45 @@ class Board:
 		valid_dst = True
 		while(self.gameover == 0):
 			self.clear()
-			self.print_side_to_move()
-			self.print_board()
-			if(self.colour_to_move == self.human_colour):
-				if(not legal_move):
-					legal_move = True
-					print("Illegal move, try again.")
-				if(not valid_src or not valid_dst):
-					valid_src = True
-					valid_dst = True
-					print("Input error, try again.")
-				#USER INPUT
-				print("Usage:" + tx_green + "x" + reset + "," + tx_cyan + "y" + reset)
-				src_square = input("Src square: ")
-				valid_src = self.is_input_valid(src_square)
-				src_square = src_square.split(",")
-				dst_square = input("Dst square: ")
-				valid_dst = self.is_input_valid(dst_square)
-				dst_square = dst_square.split(",")
-
-
-				if(valid_src and valid_dst):
-					move = Move(int(src_square[0]),int(src_square[1]),int(dst_square[0]),int(dst_square[1]))
-					legal_move = self.do_move(move)
-					if(legal_move):
-						self.last_move = move
-			else:
-				print("Computer thinking....")
-				#sleep(1)
-				cmove = self.get_cmove()
-				self.do_cmove(cmove)
-				self.last_move = cmove
-				#print(self.get_hmove())#human hint move
 			self.is_game_over()
 			if(self.gameover == constants.WHITE):
 				print("Congratulations WHITE wins the game!")
 			elif(self.gameover == constants.BLACK):
 				print("Congratulations BLACK wins the game!")
+			if(self.gameover == 0):
+				self.print_side_to_move()
+			self.print_board()
+			if(self.gameover == 0):
+				if(self.colour_to_move == self.human_colour):
+					if(not legal_move):
+						legal_move = True
+						print("Illegal move, try again.")
+					if(not valid_src or not valid_dst):
+						valid_src = True
+						valid_dst = True
+						print("Input error, try again.")
+					#USER INPUT
+					print("Usage:" + tx_green + "x" + reset + "," + tx_cyan + "y" + reset)
+					src_square = input("Src square: ")
+					valid_src = self.is_input_valid(src_square)
+					src_square = src_square.split(",")
+					dst_square = input("Dst square: ")
+					valid_dst = self.is_input_valid(dst_square)
+					dst_square = dst_square.split(",")
+
+					if(valid_src and valid_dst):
+						move = Move(int(src_square[0]),int(src_square[1]),int(dst_square[0]),int(dst_square[1]))
+						legal_move = self.do_move(move)
+						if(legal_move):
+							self.last_move = move
+				else:
+					print("Computer thinking....")
+					#sleep(1)
+					cmove = self.get_cmove()
+					self.do_cmove(cmove)
+					self.last_move = cmove
+					#print(self.get_hmove())#human hint move
+
 
 
 	#Function to determine if the current game has finished
