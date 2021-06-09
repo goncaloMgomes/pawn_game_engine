@@ -18,9 +18,20 @@ class Board:
 		self.human_colour = constants.WHITE
 		self.search_depth = 5
 		self.init_board()
+		self.label_to_coordinate= {
+			"a8":( 0,0 ), "b8":( 0,1 ), "c8":( 0,2 ), "d8":( 0,3 ), "e8":( 0,4 ), "f8":( 0,5 ),"g8":( 0,6 ), "h8":( 0,7 ),
+			"a7":( 1,0 ), "b7":( 1,1 ), "c7":( 1,2 ), "d7":( 1,3 ), "e7":( 1,4 ), "f7":( 1,5 ),"g7":( 1,6 ), "h7":( 1,7 ),
+			"a6":( 2,0 ), "b6":( 2,1 ), "c6":( 2,2 ), "d6":( 2,3 ), "e6":( 2,4 ), "f6":( 2,5 ),"g6":( 2,6 ), "h6":( 2,7 ),
+			"a5":( 3,0 ), "b5":( 3,1 ), "c5":( 3,2 ), "d5":( 3,3 ), "e5":( 3,4 ), "f5":( 3,5 ),"g5":( 3,6 ), "h5":( 3,7 ),
+			"a4":( 4,0 ), "b4":( 4,1 ), "c4":( 4,2 ), "d4":( 4,3 ), "e4":( 4,4 ), "f4":( 4,5 ),"g4":( 4,6 ), "h4":( 4,7 ),
+			"a3":( 5,0 ), "b3":( 5,1 ), "c3":( 5,2 ), "d3":( 5,3 ), "e3":( 5,4 ), "f3":( 5,5 ),"g3":( 5,6 ), "h3":( 5,7 ),
+			"a2":( 6,0 ), "b2":( 6,1 ), "c2":( 6,2 ), "d2":( 6,3 ), "e2":( 6,4 ), "f2":( 6,5 ),"g2":( 6,6 ), "h2":( 6,7 ),
+			"a1":( 7,0 ), "b1":( 7,1 ), "c1":( 7,2 ), "d1":( 7,3 ), "e1":( 7,4 ), "f1":( 7,5 ),"g1":( 7,6 ), "h1":( 7,7 )
+			}
 
 
 	def init_board(self):
+
 		#black_pawn = 1 -> BLACK
 		#white_pawn = 2 -> WHITE
 		for c in range(8):
@@ -29,6 +40,7 @@ class Board:
 
 
 	def print_board(self):
+
 		bg_white = "\u001b[47m"
 		tx_black = "\u001b[30m"
 		tx_white = "\u001b[37m"
@@ -41,7 +53,6 @@ class Board:
 		bg_gray = "\u001b[48;5;240m"
 
 		print("  ♟ -> BLACK PAWN \n  ♙ -> WHITE PAWN")
-		print(tx_cyan + "  0 1 2 3 4 5 6 7" + reset)
 		for l in range(8):
 			print(str(8-l)+" ",end='')
 			for c in range(8):
@@ -63,15 +74,18 @@ class Board:
 						print(bg_gray + tx_color + pawn + " " + reset, end='')
 					else:
 						print(bg_gray + tx_color + "  " + reset, end='')
-				if(c == 7): print(tx_green + " " +str(l) + reset)
+				if(c == 7): print()
 			if(l == 7):
 				print("  a b c d e f g h")
 
 
 	def print_side_to_move(self):
+
 		print("WHITE TO MOVE" if self.colour_to_move == constants.WHITE else "BLACK TO MOVE")
 
+
 	def get_moves(self,board,side_to_move,last_move):
+
 		moves = []
 		for l in range(8):
 			for c in range(8):
@@ -116,7 +130,9 @@ class Board:
 								moves.append(Move(l,c,l+1,c+1))
 		return moves
 
+
 	def do_move(self,move):
+
 		moves = self.get_moves(self.board,self.colour_to_move,self.last_move)
 		if(move in moves):
 			#if there is a change in columns and the destiny square is empty
@@ -136,6 +152,7 @@ class Board:
 			return False
 
 	def do_cmove(self,move):
+
 		if(move.dst_c != move.src_c and self.board[move.dst_l,move.dst_c] == 0):
 			# remove eaten  piece
 			self.board[move.src_l,move.dst_c] = 0
@@ -147,22 +164,21 @@ class Board:
 		self.colour_to_move = constants.WHITE if self.colour_to_move == constants.BLACK else constants.BLACK
 
 	def clear(self):
+
 		os.system('cls' if os.name=='nt' else 'clear')
 
 	def is_input_valid(self,input_move):
-		input_move = input_move.split(",")
-		if(len(input_move) != 2):
-			return False
-		try:
-			int(input_move[0])
-			int(input_move[1])
-		except ValueError:
-			return False
 
-		return True
+		return (input_move in self.label_to_coordinate.keys())
+
+
+	def get_coordinates_from_label(self,input_move):
+
+		return self.label_to_coordinate[input_move]
 
 
 	def run(self):
+
 		tx_green = "\u001b[32m"
 		tx_cyan = "\u001b[36;1m"
 		reset = "\u001b[0m"
@@ -189,16 +205,21 @@ class Board:
 						valid_dst = True
 						print("Input error, try again.")
 					#USER INPUT
-					print("Usage:" + tx_green + "x" + reset + "," + tx_cyan + "y" + reset)
-					src_square = input("Src square: ")
-					valid_src = self.is_input_valid(src_square)
-					src_square = src_square.split(",")
-					dst_square = input("Dst square: ")
-					valid_dst = self.is_input_valid(dst_square)
-					dst_square = dst_square.split(",")
+					print("Usage: letter followed by row number.Ex: a1")
+					src_label = input("Src square: ")
+					valid_src = self.is_input_valid(src_label)
+					print(valid_src)
+					dst_label = input("Dst square: ")
+					valid_dst = self.is_input_valid(dst_label)
 
+					print(valid_dst)
 					if(valid_src and valid_dst):
-						move = Move(int(src_square[0]),int(src_square[1]),int(dst_square[0]),int(dst_square[1]))
+						src_square = self.get_coordinates_from_label(src_label)
+
+						print(src_square)
+						dst_square = self.get_coordinates_from_label(dst_label)
+						print(dst_square)
+						move = Move(src_square[0],src_square[1],dst_square[0],dst_square[1])
 						legal_move = self.do_move(move)
 						if(legal_move):
 							self.last_move = move
@@ -214,6 +235,7 @@ class Board:
 
 	#Function to determine if the current game has finished
 	def is_game_over(self):
+
 		if(self.colour_to_move == self.engine_colour):
 			moves = self.get_moves(self.board,self.engine_colour,self.last_move)
 			if(len(moves) == 0):
@@ -235,6 +257,7 @@ class Board:
 					break
 	#Function to determine if a child in minimax has reached a game over position
 	def is_game_over_in_position(self,position,maximizingPlayer,last_move):
+
 		if(maximizingPlayer):
 			moves = self.get_moves(position,self.engine_colour,last_move)
 			if(len(moves) == 0):
@@ -259,6 +282,7 @@ class Board:
 		return 0
 
 	def get_static_evaluation_of_position(self,position,maximizingPlayer,last_move):
+
 		#each pawn has a value of 1, all pawns are the same
 		#a win has a value of 100 a loss -100
 		evaluation = 0
@@ -278,6 +302,7 @@ class Board:
 		return evaluation
 
 	def get_child_positions(self,position,side_to_move,last_move):
+
 		positions = []
 		moves = self.get_moves(position,side_to_move,last_move)
 		for move in moves:
@@ -295,6 +320,7 @@ class Board:
 
 
 	def minimax(self, position, last_move, depth, alpha, beta, maximizingPlayer):
+
 		best_move = Move(None,None,None,None)
 		is_game_over = self.is_game_over_in_position(position,maximizingPlayer,last_move)
 		if((depth == 0) or (is_game_over != 0)):
@@ -332,10 +358,15 @@ class Board:
 					break
 			return minEval,best_move
 
+
 	def get_cmove(self):
+
 		_,best_move = self.minimax(self.board,self.last_move, self.search_depth, -math.inf, math.inf, True)
 		return best_move
+
+
 	def get_hmove(self):
+
 		_,best_move = self.minimax(self.board,self.last_move, self.search_depth, -math.inf, math.inf, False)
 		return best_move
 
