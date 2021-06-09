@@ -10,6 +10,7 @@ Move = namedtuple('Move', ['src_l','src_c','dst_l','dst_c'])
 class Board:
 	def __init__(self):
 		self.board = np.zeros((8,8),dtype=int)
+
 		self.colour_to_move = constants.WHITE
 
 		self.gameover = 0 #0 means that no one has yet won the game
@@ -52,7 +53,7 @@ class Board:
 		b_pawn = "♟"
 		bg_gray = "\u001b[48;5;240m"
 
-		print("  ♟ -> BLACK PAWN \n  ♙ -> WHITE PAWN")
+		print("  ♟ -> BLACK PAWN \n  ♙ -> WHITE PAWN\n\n")
 		for l in range(8):
 			print(str(8-l)+" ",end='')
 			for c in range(8):
@@ -77,6 +78,7 @@ class Board:
 				if(c == 7): print()
 			if(l == 7):
 				print("  a b c d e f g h")
+
 
 
 	def print_side_to_move(self):
@@ -131,6 +133,34 @@ class Board:
 		return moves
 
 
+	def determine_board_position(self):
+
+		board_position = ""
+		if(self.colour_to_move == constants.BLACK):
+			board_position  = "B:"
+		else:
+			board_position  = "W:"
+
+		board_position += "W"
+		for l in range(8):
+			for c in range(8):
+				piece = self.board[l,c]
+				if(piece == constants.WHITE):
+					board_position += self.get_label_from_coordinates((l,c)) + ','
+
+		board_position = board_position[:-1]
+		board_position += ":B"
+		for l in range(8):
+			for c in range(8):
+				piece = self.board[l,c]
+				if(piece == constants.BLACK):
+					board_position += self.get_label_from_coordinates((l,c)) + ','
+		board_position = board_position[:-1]
+		board_position += '.'
+
+		return board_position
+
+
 	def do_move(self,move):
 
 		moves = self.get_moves(self.board,self.colour_to_move,self.last_move)
@@ -177,7 +207,119 @@ class Board:
 		return self.label_to_coordinate[input_move]
 
 
-	def run(self):
+	def get_label_from_coordinates(self,label):
+
+		return list(self.label_to_coordinate.keys())[list(self.label_to_coordinate.values()).index(label)]
+
+	def set_players_colours(self):
+
+		colours = {
+			'1': constants.BLACK,
+			'2': constants.WHITE,
+			'default': constants.WHITE
+		}
+		print("Human plays with the colour: ")
+		print("[1]-Black")
+		print("[2]-White")
+		option = str(input("Option: "))
+		colour = colours.get(option,colours.get('default'))
+		self.clear()
+		print("The human plays with the colour %s." % ("white" if colour == constants.WHITE else "black"))
+		self.human_colour = colour
+		self.engine_colour = constants.WHITE if self.human_colour == constants.BLACK else constants.BLACK
+
+
+	def set_starting_player(self):
+
+		starting_players = {
+			'1': "human",
+			'2': "computer",
+			'default': "human"
+		}
+		print("Choose the starting player:")
+		print("[1]-Human")
+		print("[2]-Computer")
+		option = str(input("Option: "))
+		starting_player = starting_players.get(option,starting_players.get('default'))
+		self.clear()
+		print("The starting player is %s." % (starting_player))
+		self.colour_to_move = self.human_colour if starting_player == "human" else self.engine_colour
+
+
+
+	def set_board_position(self):
+		board_position = self.determine_board_position()
+		board_position = str(input("Board position: "))
+		if(len(board_position) > 0):
+			self.board = np.zeros((8,8),dtype=int)
+			if(board_position[0] == "B"):
+				self.colour_to_move = constants.BLACK
+			if(board_position[0] == "W"):
+				self.colour_to_move = constants.WHITE
+			slices = board_position.split(":")
+			if(len(slices) == 3):
+				if(slices[1][0] == "W"):
+					aux = slices[1][1:]
+					white_pieces = aux.split(',')
+					aux = slices[2][1:-1]
+					black_pieces = aux.split(',')
+				elif(slices[1][0] == "B"):
+					aux = slices[1][1:]
+					black_pieces = aux.split(',')
+					aux = slices[2][1:-1]
+					white_pieces = aux.split(',')
+				if(len(white_pieces) > 0 and len(black_pieces) > 0):
+					for piece in white_pieces:
+						(l,c) = self.get_coordinates_from_label(piece)
+						self.board[l,c] = constants.WHITE
+					for piece in black_pieces:
+						(l,c) = self.get_coordinates_from_label(piece)
+						self.board[l,c] = constants.BLACK
+
+
+
+
+
+
+	def print_board_position(self):
+
+		print(self.determine_board_position())
+
+
+
+	def print_invalid(self):
+
+		print("Invalid option, please try again!")
+
+
+
+	def menu(self):
+		print("      ♟♟♟   PAWN GAME   ♙♙♙\n")
+		print("[1] - Select human colour  - (%s)" % ("white" if self.human_colour == constants.WHITE else "black"))
+		print("[2] - Set board position   -")
+		print("[3] - Get board position   -")
+		print("[4] - Set starting player  - (%s)" % ("human" if self.colour_to_move == self.human_colour else "computer"))
+		print("[5] - Start game           -")
+
+
+	def run_menu(self):
+		menu_functions = {
+			1: self.set_players_colours,
+			2: self.set_board_position,
+			3: self.print_board_position,
+			4: self.set_starting_player,
+			5: self.run_game,
+			'default':self.print_invalid
+		}
+		self.clear()
+		while(True):
+			self.menu()
+			option = int(input("Option: "))
+			self.clear()
+			menu_functions.get(option,menu_functions.get('default'))()
+
+
+	def run_game(self):
 
 		tx_green = "\u001b[32m"
 		tx_cyan = "\u001b[36;1m"
@@ -185,51 +327,54 @@ class Board:
 		legal_move = True
 		valid_src = True
 		valid_dst = True
+		if(self.gameover != 0):
+			print("Game already won, to play again please set the board again.")
+
 		while(self.gameover == 0):
-			self.clear()
-			self.is_game_over()
-			if(self.gameover == constants.WHITE):
-				print("Congratulations WHITE wins the game!")
-			elif(self.gameover == constants.BLACK):
-				print("Congratulations BLACK wins the game!")
-			if(self.gameover == 0):
-				self.print_side_to_move()
-			self.print_board()
-			if(self.gameover == 0):
-				if(self.colour_to_move == self.human_colour):
-					if(not legal_move):
-						legal_move = True
-						print("Illegal move, try again.")
-					if(not valid_src or not valid_dst):
-						valid_src = True
-						valid_dst = True
-						print("Input error, try again.")
-					#USER INPUT
-					print("Usage: letter followed by row number.Ex: a1")
-					src_label = input("Src square: ")
-					valid_src = self.is_input_valid(src_label)
-					print(valid_src)
-					dst_label = input("Dst square: ")
-					valid_dst = self.is_input_valid(dst_label)
+			try:
+				self.clear()
+				self.is_game_over()
+				if(self.gameover == constants.WHITE):
+					print("Congratulations WHITE wins the game!")
+				elif(self.gameover == constants.BLACK):
+					print("Congratulations BLACK wins the game!")
+				if(self.gameover == 0):
+					self.print_side_to_move()
+				self.print_board()
+				if(self.gameover == 0):
+					if(self.colour_to_move == self.human_colour):
+						if(not legal_move):
+							legal_move = True
+							print("Illegal move, try again.")
+						if(not valid_src or not valid_dst):
+							valid_src = True
+							valid_dst = True
+							print("Input error, try again.")
+						#USER INPUT
+						print("\n\nUsage: letter followed by row number.Ex: a1")
+						src_label = input("Src square: ")
+						valid_src = self.is_input_valid(src_label)
+						dst_label = input("Dst square: ")
+						valid_dst = self.is_input_valid(dst_label)
 
-					print(valid_dst)
-					if(valid_src and valid_dst):
-						src_square = self.get_coordinates_from_label(src_label)
+						if(valid_src and valid_dst):
+							src_square = self.get_coordinates_from_label(src_label)
+							dst_square = self.get_coordinates_from_label(dst_label)
 
-						print(src_square)
-						dst_square = self.get_coordinates_from_label(dst_label)
-						print(dst_square)
-						move = Move(src_square[0],src_square[1],dst_square[0],dst_square[1])
-						legal_move = self.do_move(move)
-						if(legal_move):
-							self.last_move = move
-				else:
-					print("Computer thinking....")
-					#sleep(1)
-					cmove = self.get_cmove()
-					self.do_cmove(cmove)
-					self.last_move = cmove
-					#print(self.get_hmove())#human hint move
+							move = Move(src_square[0],src_square[1],dst_square[0],dst_square[1])
+							legal_move = self.do_move(move)
+							if(legal_move):
+								self.last_move = move
+					else:
+						print("Computer thinking....")
+						#sleep(1)
+						cmove = self.get_cmove()
+						self.do_cmove(cmove)
+						self.last_move = cmove
+						#print(self.get_hmove())#human hint move
+			except KeyboardInterrupt:
+				self.clear()
+				break
 
 
 
@@ -372,4 +517,4 @@ class Board:
 
 if __name__ == "__main__":
 	board = Board()
-	board.run()
+	board.run_menu()
