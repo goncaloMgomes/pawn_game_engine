@@ -35,6 +35,11 @@ class Board:
 
 		#black_pawn = 1 -> BLACK
 		#white_pawn = 2 -> WHITE
+		#cleaning the board
+		for l in range(8):
+			for c in range(8):
+				self.board[l,c] = 0
+
 		for c in range(8):
 			self.board[6,c] = constants.WHITE
 			self.board[1,c] = constants.BLACK
@@ -300,23 +305,34 @@ class Board:
 		print("[3] - Get board position   -")
 		print("[4] - Set starting player  - (%s)" % ("human" if self.colour_to_move == self.human_colour else "computer"))
 		print("[5] - Start game           -")
+		print("[6] - Reset board          -")
 
 
 	def run_menu(self):
+
 		menu_functions = {
 			1: self.set_players_colours,
 			2: self.set_board_position,
 			3: self.print_board_position,
 			4: self.set_starting_player,
 			5: self.run_game,
+			6: self.init_board,
 			'default':self.print_invalid
 		}
 		self.clear()
 		while(True):
-			self.menu()
-			option = int(input("Option: "))
-			self.clear()
-			menu_functions.get(option,menu_functions.get('default'))()
+			try:
+				self.menu()
+				option = input("Option: ")
+				if(not option.isnumeric()):
+					option = 0
+				self.clear()
+				menu_functions.get(int(option),menu_functions.get('default'))()
+			except KeyboardInterrupt:
+				self.clear()
+				break
+
+
 
 
 	def run_game(self):
