@@ -43,7 +43,9 @@ class Board:
 		for c in range(8):
 			self.board[6,c] = constants.WHITE
 			self.board[1,c] = constants.BLACK
-
+		self.gameover = 0
+		self.colour_to_move = constants.WHITE
+		self.last_move = Move(None,None,None,None)
 
 	def print_board(self):
 
