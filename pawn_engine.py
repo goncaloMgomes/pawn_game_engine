@@ -199,6 +199,8 @@ class Board:
 		self.board[move.src_l,move.src_c] = 0
 		# toggle player to move
 		self.colour_to_move = constants.WHITE if self.colour_to_move == constants.BLACK else constants.BLACK
+		# replace last move with this one
+		self.last_move = move
 
 	def clear(self):
 
@@ -214,11 +216,17 @@ class Board:
 		return self.label_to_coordinate[input_move]
 
 
-	def get_label_from_coordinates(self,label):
+	def get_label_from_coordinates(self,coords):
 
-		return list(self.label_to_coordinate.keys())[list(self.label_to_coordinate.values()).index(label)]
+		return list(self.label_to_coordinate.keys())[list(self.label_to_coordinate.values()).index(coords)]
 
-	def set_players_colours(self):
+	def get_last_move_labels(self):
+		src = self.get_label_from_coordinates((self.last_move.src_l,self.last_move.src_c))
+		dst = self.get_label_from_coordinates((self.last_move.dst_l,self.last_move.dst_c))
+		engine_move = [src,dst]
+		return engine_move
+
+	def choose_human_colour(self):
 
 		colours = {
 			'1': constants.BLACK,
@@ -232,11 +240,14 @@ class Board:
 		colour = colours.get(option,colours.get('default'))
 		self.clear()
 		print("The human plays with the colour %s." % ("white" if colour == constants.WHITE else "black"))
+		self.set_human_colour(colour)
+
+	def set_human_colour(self,colour):
+
 		self.human_colour = colour
 		self.engine_colour = constants.WHITE if self.human_colour == constants.BLACK else constants.BLACK
 
-
-	def set_starting_player(self):
+	def choose_starting_player(self):
 
 		starting_players = {
 			'1': "human",
@@ -250,13 +261,20 @@ class Board:
 		starting_player = starting_players.get(option,starting_players.get('default'))
 		self.clear()
 		print("The starting player is %s." % (starting_player))
-		self.colour_to_move = self.human_colour if starting_player == "human" else self.engine_colour
+		self.set_starting_player(starting_player)
 
+	def set_starting_player(self,starting_player):
 
+		self.colour_to_move = self.engine_colour if starting_player == "computer" else self.human_colour
 
-	def set_board_position(self):
-		board_position = self.determine_board_position()
+	def set_board_from_input(self):
+
 		board_position = str(input("Board position: "))
+		self.set_board_position(board_position)
+
+
+	def set_board_position(self,board_position):
+
 		if(len(board_position) > 0):
 			self.board = np.zeros((8,8),dtype=int)
 			if(board_position[0] == "B"):
@@ -313,10 +331,10 @@ class Board:
 	def run_menu(self):
 
 		menu_functions = {
-			1: self.set_players_colours,
-			2: self.set_board_position,
+			1: self.choose_human_colour,
+			2: self.set_board_from_input,
 			3: self.print_board_position,
-			4: self.set_starting_player,
+			4: self.choose_starting_player,
 			5: self.run_game,
 			6: self.init_board,
 			'default':self.print_invalid
@@ -388,7 +406,6 @@ class Board:
 						#sleep(1)
 						cmove = self.get_cmove()
 						self.do_cmove(cmove)
-						self.last_move = cmove
 						#print(self.get_hmove())#human hint move
 			except KeyboardInterrupt:
 				self.clear()
