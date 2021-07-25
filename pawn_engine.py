@@ -41,10 +41,10 @@ class Board:
 				self.board[l,c] = 0
 
 		for c in range(8):
-			self.board[6,c] = constants.WHITE
-			self.board[1,c] = constants.BLACK
+			self.board[6,c] = self.human_colour
+			self.board[1,c] = self.engine_colour
 		self.gameover = 0
-		self.colour_to_move = constants.WHITE
+		self.colour_to_move = self.human_colour
 		self.last_move = Move(None,None,None,None)
 
 	def print_board(self):
@@ -99,44 +99,84 @@ class Board:
 		for l in range(8):
 			for c in range(8):
 				piece = board[l,c]
-				if(piece == side_to_move and piece == constants.WHITE):
-					#WHITE moves in the direction where l reduces value
-					if(l == 6):#first position for WHITE
-						if(board[l-2,c] == 0): #empty square
-							moves.append(Move(l,c,l-2,c))
-					if(self.last_move.src_l == 1 and last_move.dst_l == 3 and l == 3):#en passant available
-						if(c == last_move.dst_c - 1):
-							moves.append(Move(l,c,l-1,c+1))
-						if(c == last_move.dst_c + 1):
-							moves.append(Move(l,c,l-1,c-1))
-					if(l >= 1):
-						if(board[l-1,c] == 0): #empty square
-							moves.append(Move(l,c,l-1,c))
-						if(c >= 1):
-							if(board[l-1,c-1] == constants.BLACK): #square with a BLACK pawn
-								moves.append(Move(l,c,l-1,c-1))
-						if(c <= 6):
-							if(board[l-1,c+1] == constants.BLACK): #square with a BLACK pawn
+				if(self.human_colour == constants.WHITE):
+					if(piece == side_to_move and piece == constants.WHITE):
+						#WHITE moves in the direction where l reduces value
+						if(l == 6):#first position for WHITE
+							if(board[l-2,c] == 0): #empty square
+								moves.append(Move(l,c,l-2,c))
+						if(self.last_move.src_l == 1 and last_move.dst_l == 3 and l == 3):#en passant available
+							if(c == last_move.dst_c - 1):
 								moves.append(Move(l,c,l-1,c+1))
-				elif(piece == side_to_move and piece == constants.BLACK):
-					#BLACK moves in the direction where l increases value
-					if(l == 1):#first position for BLACK
-						if(board[l+2,c] == 0): #empty square
-							moves.append(Move(l,c,l+2,c))
-					if(last_move.src_l == 6 and last_move.dst_l == 4 and l == 4):#en passant available
-						if(c == last_move.dst_c - 1):
-							moves.append(Move(l,c,l+1,c+1))
-						if(c == last_move.dst_c + 1):
-							moves.append(Move(l,c,l+1,c-1))
-					if(l <= 6):
-						if(board[l+1,c] == 0): #empty square
-							moves.append(Move(l,c,l+1,c))
-						if(c >= 1):
-							if(board[l+1,c-1] == constants.WHITE): #square with a BLACK pawn
-								moves.append(Move(l,c,l+1,c-1))
-						if(c <= 6):
-							if(board[l+1,c+1] == constants.WHITE): #square with a BLACK pawn
+							if(c == last_move.dst_c + 1):
+								moves.append(Move(l,c,l-1,c-1))
+						if(l >= 1):
+							if(board[l-1,c] == 0): #empty square
+								moves.append(Move(l,c,l-1,c))
+							if(c >= 1):
+								if(board[l-1,c-1] == constants.BLACK): #square with a BLACK pawn
+									moves.append(Move(l,c,l-1,c-1))
+							if(c <= 6):
+								if(board[l-1,c+1] == constants.BLACK): #square with a BLACK pawn
+									moves.append(Move(l,c,l-1,c+1))
+					elif(piece == side_to_move and piece == constants.BLACK):
+						#BLACK moves in the direction where l increases value
+						if(l == 1):#first position for BLACK
+							if(board[l+2,c] == 0): #empty square
+								moves.append(Move(l,c,l+2,c))
+						if(last_move.src_l == 6 and last_move.dst_l == 4 and l == 4):#en passant available
+							if(c == last_move.dst_c - 1):
 								moves.append(Move(l,c,l+1,c+1))
+							if(c == last_move.dst_c + 1):
+								moves.append(Move(l,c,l+1,c-1))
+						if(l <= 6):
+							if(board[l+1,c] == 0): #empty square
+								moves.append(Move(l,c,l+1,c))
+							if(c >= 1):
+								if(board[l+1,c-1] == constants.WHITE): #square with a BLACK pawn
+									moves.append(Move(l,c,l+1,c-1))
+							if(c <= 6):
+								if(board[l+1,c+1] == constants.WHITE): #square with a BLACK pawn
+									moves.append(Move(l,c,l+1,c+1))
+				else:
+					if(piece == side_to_move and piece == constants.BLACK):
+						#BLACK moves in the direction where l reduces value
+						if(l == 6):#first position for WHITE
+							if(board[l-2,c] == 0): #empty square
+								moves.append(Move(l,c,l-2,c))
+						if(self.last_move.src_l == 1 and last_move.dst_l == 3 and l == 3):#en passant available
+							if(c == last_move.dst_c - 1):
+								moves.append(Move(l,c,l-1,c+1))
+							if(c == last_move.dst_c + 1):
+								moves.append(Move(l,c,l-1,c-1))
+						if(l >= 1):
+							if(board[l-1,c] == 0): #empty square
+								moves.append(Move(l,c,l-1,c))
+							if(c >= 1):
+								if(board[l-1,c-1] == constants.WHITE): #square with a BLACK pawn
+									moves.append(Move(l,c,l-1,c-1))
+							if(c <= 6):
+								if(board[l-1,c+1] == constants.WHITE): #square with a BLACK pawn
+									moves.append(Move(l,c,l-1,c+1))
+					elif(piece == side_to_move and piece == constants.WHITE):
+						#WHITE moves in the direction where l increases value
+						if(l == 1):#first position for BLACK
+							if(board[l+2,c] == 0): #empty square
+								moves.append(Move(l,c,l+2,c))
+						if(last_move.src_l == 6 and last_move.dst_l == 4 and l == 4):#en passant available
+							if(c == last_move.dst_c - 1):
+								moves.append(Move(l,c,l+1,c+1))
+							if(c == last_move.dst_c + 1):
+								moves.append(Move(l,c,l+1,c-1))
+						if(l <= 6):
+							if(board[l+1,c] == 0): #empty square
+								moves.append(Move(l,c,l+1,c))
+							if(c >= 1):
+								if(board[l+1,c-1] == constants.BLACK): #square with a BLACK pawn
+									moves.append(Move(l,c,l+1,c-1))
+							if(c <= 6):
+								if(board[l+1,c+1] == constants.BLACK): #square with a BLACK pawn
+									moves.append(Move(l,c,l+1,c+1))
 		return moves
 
 
@@ -168,7 +208,11 @@ class Board:
 		return board_position
 
 
-	def do_move(self,move):
+	def do_move(self,src_label,dst_label):
+		src_square = self.get_coordinates_from_label(src_label)
+		dst_square = self.get_coordinates_from_label(dst_label)
+
+		move = Move(src_square[0],src_square[1],dst_square[0],dst_square[1])
 
 		moves = self.get_moves(self.board,self.colour_to_move,self.last_move)
 		if(move in moves):
@@ -183,6 +227,8 @@ class Board:
 			self.board[move.src_l,move.src_c] = 0
 			# toggle player to move
 			self.colour_to_move = constants.WHITE if self.colour_to_move == constants.BLACK else constants.BLACK
+
+			self.last_move = move
 			#return True if the move is legal
 			return True
 		else:
@@ -229,9 +275,9 @@ class Board:
 	def choose_human_colour(self):
 
 		colours = {
-			'1': constants.BLACK,
-			'2': constants.WHITE,
-			'default': constants.WHITE
+			'1': "black",
+			'2': "white",
+			'default': "white"
 		}
 		print("Human plays with the colour: ")
 		print("[1]-Black")
@@ -239,13 +285,15 @@ class Board:
 		option = str(input("Option: "))
 		colour = colours.get(option,colours.get('default'))
 		self.clear()
-		print("The human plays with the colour %s." % ("white" if colour == constants.WHITE else "black"))
+		print("The human plays with the colour %s." % (colour))
 		self.set_human_colour(colour)
 
 	def set_human_colour(self,colour):
 
-		self.human_colour = colour
-		self.engine_colour = constants.WHITE if self.human_colour == constants.BLACK else constants.BLACK
+		self.human_colour = constants.WHITE if colour == "white" else constants.BLACK
+		self.engine_colour = constants.WHITE if colour == "black" else constants.BLACK
+		print(self.human_colour)
+		print(self.engine_colour)
 
 	def choose_starting_player(self):
 
@@ -357,6 +405,7 @@ class Board:
 
 	def run_game(self):
 
+		self.init_board()
 		tx_green = "\u001b[32m"
 		tx_cyan = "\u001b[36;1m"
 		reset = "\u001b[0m"
@@ -394,13 +443,13 @@ class Board:
 						valid_dst = self.is_input_valid(dst_label)
 
 						if(valid_src and valid_dst):
-							src_square = self.get_coordinates_from_label(src_label)
-							dst_square = self.get_coordinates_from_label(dst_label)
+							#src_square = self.get_coordinates_from_label(src_label)
+							#dst_square = self.get_coordinates_from_label(dst_label)
 
-							move = Move(src_square[0],src_square[1],dst_square[0],dst_square[1])
-							legal_move = self.do_move(move)
-							if(legal_move):
-								self.last_move = move
+							#move = Move(src_square[0],src_square[1],dst_square[0],dst_square[1])
+							legal_move = self.do_move(src_label,dst_label)
+							#if(legal_move):
+								#self.last_move = move
 					else:
 						print("Computer thinking....")
 						#sleep(1)
@@ -425,16 +474,28 @@ class Board:
 			if(len(moves) == 0):
 				self.gameover = self.engine_colour
 		for c in range(8):
-			#WHITE wins when a white pawn gets to the row 0
-			if(self.colour_to_move == constants.BLACK):
-				if(self.board[0,c] == constants.WHITE):
-					self.gameover = constants.WHITE
-					break
-			#BLACK wins when a black pawn gets to the row 7
+			if(self.human_colour == constants.WHITE):
+				#WHITE wins when a white pawn gets to the row 0
+				if(self.colour_to_move == constants.BLACK):
+					if(self.board[0,c] == constants.WHITE):
+						self.gameover = constants.WHITE
+						break
+				#BLACK wins when a black pawn gets to the row 7
+				else:
+					if(self.board[7,c] == constants.BLACK):
+						self.gameover = constants.BLACK
+						break
 			else:
-				if(self.board[7,c] == constants.BLACK):
-					self.gameover = constants.BLACK
-					break
+				#WHITE wins when a white pawn gets to the row 7
+				if(self.colour_to_move == constants.BLACK):
+					if(self.board[7,c] == constants.WHITE):
+						self.gameover = constants.WHITE
+						break
+				#BLACK wins when a black pawn gets to the row 0
+				else:
+					if(self.board[0,c] == constants.BLACK):
+						self.gameover = constants.BLACK
+						break
 	#Function to determine if a child in minimax has reached a game over position
 	def is_game_over_in_position(self,position,maximizingPlayer,last_move):
 
@@ -451,14 +512,24 @@ class Board:
 		for c in range(8):
 			#if maximizingPlayer is the current player to play we need to check if the
 			#minimizingPlayer won in the last state before proceeding
-			#WHITE wins when a white pawn gets to the row 0
-			if(maximizingPlayer):
-				if(position[0,c] == constants.WHITE):
-					return constants.WHITE
-			#BLACK wins when a black pawn gets to the row 7
+			if(self.human_colour == constants.WHITE):
+				#WHITE wins when a white pawn gets to the row 0
+				if(maximizingPlayer):
+					if(position[0,c] == constants.WHITE):
+						return constants.WHITE
+				#BLACK wins when a black pawn gets to the row 7
+				else:
+					if(position[7,c] == constants.BLACK):
+						return constants.BLACK
 			else:
-				if(position[7,c] == constants.BLACK):
-					return constants.BLACK
+				#WHITE wins when a white pawn gets to the row 7
+				if(maximizingPlayer):
+					if(position[0,c] == constants.BLACK):
+						return constants.BLACK
+				#BLACK wins when a black pawn gets to the row 0
+				else:
+					if(position[7,c] == constants.WHITE):
+						return constants.WHITE
 		return 0
 
 	def get_static_evaluation_of_position(self,position,maximizingPlayer,last_move):
@@ -507,7 +578,7 @@ class Board:
 			eval = self.get_static_evaluation_of_position(position,maximizingPlayer,last_move)
 			if(is_game_over == self.engine_colour):
 				eval += depth #the higher the depth the less moves it is required to achieve a good position
-			elif(is_game_over == self.engine_colour):
+			elif(is_game_over == self.human_colour):
 				eval -= depth
 			return eval,best_move
 
