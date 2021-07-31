@@ -40,7 +40,7 @@ move = get_cmove() #get the engine move
 do_cmove(move) #plays the engine move
 ```
 ```python
-winner = is_game_over(get_cmove())  #check if the game is over, winner == 0 if the game is not over
+winner = is_game_over()  #check if the game is over, winner == 0 if the game is not over
                                     #winner == engine_colour if the engine won
                                     #winner == human_colour if the human won the game
 ```
