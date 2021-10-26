@@ -405,7 +405,7 @@ class Board:
 
 	def run_game(self):
 
-		self.init_board()
+		#self.init_board()
 		tx_green = "\u001b[32m"
 		tx_cyan = "\u001b[36;1m"
 		reset = "\u001b[0m"
@@ -423,6 +423,8 @@ class Board:
 					print("Congratulations WHITE wins the game!")
 				elif(self.gameover == constants.BLACK):
 					print("Congratulations BLACK wins the game!")
+				elif(self.gameover == 3):
+					print("Neither player has moves, the game is a draw")
 				if(self.gameover == 0):
 					self.print_side_to_move()
 				self.print_board()
@@ -464,12 +466,15 @@ class Board:
 
 	#Function to determine if the current game has finished
 	def is_game_over(self):
-
-		if(self.colour_to_move == self.engine_colour):
+		engine_moves = self.get_moves(self.board,self.engine_colour,self.last_move)
+		human_moves = self.get_moves(self.board,self.human_colour,self.last_move)
+		if(len(engine_moves) == 0 and len(human_moves) == 0 ):
+			self.gameover = 3
+		elif(self.colour_to_move == self.engine_colour):
 			moves = self.get_moves(self.board,self.engine_colour,self.last_move)
 			if(len(moves) == 0):
 				self.gameover = self.human_colour
-		else:
+		elif(self.colour_to_move == self.human_colour):
 			moves = self.get_moves(self.board,self.human_colour,self.last_move)
 			if(len(moves) == 0):
 				self.gameover = self.engine_colour
