@@ -469,7 +469,7 @@ class Board:
 		engine_moves = self.get_moves(self.board,self.engine_colour,self.last_move)
 		human_moves = self.get_moves(self.board,self.human_colour,self.last_move)
 		if(len(engine_moves) == 0 and len(human_moves) == 0 ):
-			self.gameover = 3
+			self.gameover = 3 #draw
 		elif(self.colour_to_move == self.engine_colour):
 			moves = self.get_moves(self.board,self.engine_colour,self.last_move)
 			if(len(moves) == 0):
@@ -503,12 +503,15 @@ class Board:
 						break
 	#Function to determine if a child in minimax has reached a game over position
 	def is_game_over_in_position(self,position,maximizingPlayer,last_move):
-
-		if(maximizingPlayer):
+		engine_moves = self.get_moves(self.board,self.engine_colour,self.last_move)
+		human_moves = self.get_moves(self.board,self.human_colour,self.last_move)
+		if(len(engine_moves) == 0 and len(human_moves) == 0 ):
+			self.gameover = 3 #draw
+		elif(maximizingPlayer):
 			moves = self.get_moves(position,self.engine_colour,last_move)
 			if(len(moves) == 0):
 				return self.human_colour
-		else:
+		elif(not maximizingPlayer):
 			moves = self.get_moves(position,self.human_colour,last_move)
 			if(len(moves) == 0):
 				return self.engine_colour
@@ -584,6 +587,8 @@ class Board:
 			if(is_game_over == self.engine_colour):
 				eval += depth #the higher the depth the less moves it is required to achieve a good position
 			elif(is_game_over == self.human_colour):
+				eval -= depth
+			elif(is_game_over == 3):
 				eval -= depth
 			return eval,best_move
 
